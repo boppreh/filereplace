@@ -93,11 +93,7 @@ def update(operation, path, recursive=False, line_by_line=False):
     else:
         assert False, 'Path is neither file nor directory.'
 
-def replace(pattern,
-            replacement,
-            path,
-            recursive=False,
-            regex=False):
+def replace(pattern, replacement, path, recursive=False, regex=False):
     """
     Finds and replaces a pattern in each file specified. Returns the path of
     all files updated.
