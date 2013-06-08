@@ -50,7 +50,8 @@ def _update_single_file(operation, file_path, line_by_line=False):
     else:
         return _update_entire_file(operation, file_path)
 
-def _update_directory(operation, path, recursive=False, line_by_line=False):
+def _update_directory(operation, path, recursive=False, line_by_line=False,
+                      extension=''):
     """
     Updates the contents of all files under a given directory.
 
@@ -62,15 +63,17 @@ def _update_directory(operation, path, recursive=False, line_by_line=False):
         full_path = os.path.join(path, name)
 
         # Ignore directories if not recursive.
-        if os.path.isdir(full_path) and not recursive:
+        if not recursive and os.path.isdir(full_path):
             continue
 
-        results = update(operation, full_path, recursive, line_by_line)
+        results = update(operation, full_path, recursive, line_by_line,
+                         extension)
         files_updated.extend(results)
 
     return files_updated
 
-def update(operation, path, recursive=False, line_by_line=False):
+def update(operation, path, recursive=False, line_by_line=False,
+           extension=''):
     """
     Executes 'operation' for each file specified, passing as argument the
     contents of the file and replacing it with the value returned. Returns the
@@ -82,18 +85,27 @@ def update(operation, path, recursive=False, line_by_line=False):
 
     If 'line_by_line' is True, 'operation' is called for each line in each file
     instead of the entire contents at once.
+
+    'extension' is an optional string with the extension of the files to be
+    changed. Any file that doesn't end in that extension is ignored.
     """
     if not os.path.exists(path):
         raise IOError('Path does not exists: ' + path)
 
+    if not path.endswith(extension):
+        return []
+        
+
     if os.path.isfile(path):
         return _update_single_file(operation, path, line_by_line)
     elif os.path.isdir(path):
-        return _update_directory(operation, path, recursive, line_by_line)
+        return _update_directory(operation, path, recursive, line_by_line,
+                                 extension)
     else:
         assert False, 'Path is neither file nor directory.'
 
-def replace(pattern, replacement, path, recursive=False, regex=False):
+def replace(pattern, replacement, path, recursive=False, regex=False,
+            extension=''):
     """
     Finds and replaces a pattern in each file specified. Returns the path of
     all files updated.
@@ -105,13 +117,16 @@ def replace(pattern, replacement, path, recursive=False, regex=False):
     If 'regex' is true, pattern and replacement are treated as Regular
     Expressions. The syntax for the replacement is the same of the 're.sub'
     function (http://docs.python.org/2/library/re.html#re.sub)
+
+    'extension' is an optional string with the extension of the files to be
+    changed. Any file that doesn't end in that extension is ignored.
     """
     if regex:
         operation = lambda contents: re.sub(pattern, replacement, contents)
     else:
         operation = lambda contents: contents.replace(pattern, replacement)
 
-    return update(operation, path, recursive, False)
+    return update(operation, path, recursive, False, extension)
 
 if __name__ == '__main__':
     # If executed as main script, act interactively. Only 'replace' feature
