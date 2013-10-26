@@ -2,6 +2,11 @@ import os
 import fileinput
 import re
 
+try:
+    input = raw_input
+except NameError:
+    pass
+
 def _update_lines_in_file(operation, file_path):
     """
     Executes 'operation' for every line in the given file, replacing the
@@ -12,9 +17,9 @@ def _update_lines_in_file(operation, file_path):
         new_line = operation(line)
 
         if new_line is not None:
-            print operation(line),
+            print(operation(line), end='')
         else:
-            print line
+            print(line)
 
     return [file_path]
 
@@ -131,16 +136,16 @@ def replace(pattern, replacement, path, recursive=False, regex=False,
 if __name__ == '__main__':
     # If executed as main script, act interactively. Only 'replace' feature
     # available because it's hard (and dangerous) to write a
-    # replacement function with raw_input.
+    # replacement function with input().
 
-    print 'File Replace - Interactive Mode'
-    print ''
-    path = raw_input('Path (can be file or folder): ')
-    pattern = raw_input('Regex pattern to replace: ')
-    replacement = raw_input('Replacement: ')
+    print('File Replace - Interactive Mode')
+    print('')
+    path = input('Path (can be file or folder): ')
+    pattern = input('Regex pattern to replace: ')
+    replacement = input('Replacement: ')
 
     if os.path.isdir(path):
-        recursive = raw_input('Operate recursively (y/N)? ') == 'y'
+        recursive = input('Operate recursively (y/N)? ') == 'y'
     else:
         recursive = False
 
@@ -150,5 +155,5 @@ if __name__ == '__main__':
                             recursive=recursive,
                             regex=True)
 
-    print '\n\nFiles updated:'
-    print '\n'.join(files_updated)
+    print('\n\nFiles updated:')
+    print('\n'.join(files_updated))
